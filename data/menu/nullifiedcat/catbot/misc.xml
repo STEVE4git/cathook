@@ -1,0 +1,67 @@
+<Tab name="Misc" padding="4 4 4 4">
+    <Box name="Auto Party" width="content" height="content" padding="12 6 6 6">
+        <List width="150">
+            <AutoVariable width="fill" target="autoparty.enable" label="Enable auto party"/>
+            <AutoVariable width="fill" target="autoparty.run-frequency" label="Run frequency"
+                          tooltip="Run every n seconds."/>
+            <AutoVariable width="fill" target="autoparty.max-party-size" label="Max party size"
+                          tooltip="Max number of party members allowed."/>
+            <AutoVariable width="fill" target="autoparty.kick-rage" label="Autokick rage"
+                          tooltip="Automatically kick raged players from the party."/>
+            <AutoVariable width="fill" target="autoparty.auto-leave" label="Leave if offline"
+                          tooltip="Leave the party when a member goes offline."/>
+            <AutoVariable width="fill" target="autoparty.auto-lock" label="Autolock party"
+                          tooltip="Lock the party when max party size is reached."/>
+            <AutoVariable width="fill" target="autoparty.auto-unlock" label="Auto unlock party"
+                          tooltip="Unlock the party when max party size has not been reached."/>
+            <AutoVariable width="fill" target="autoparty.party-hosts" label="Party hosts"
+                          tooltip="Comma-separated list of Steam32 IDs to use as party hosts."/>
+            <AutoVariable width="fill" target="autoparty.ipc_mode" label="IPC mode"
+                          tooltip="Use IPC members as party hosts instead."/>
+            <AutoVariable width="fill" target="autoparty.ipc_count" label="IPC host count"
+                          tooltip="How many IPC members to use as party hosts."/>
+            <AutoVariable width="fill" target="autoparty.log" label="Log party leaves and kicks"/>
+            <AutoVariable width="fill" target="autoparty.message-kicks" label="Log to chat"
+                          tooltip="Log kick notifications to party chat."/>
+            <AutoVariable width="fill" target="autoparty.debug" label="Log locks/unlocks"/>
+        </List>
+    </Box>
+    <Box padding="12 6 6 6" width="content" height="content" name="Auto item" x="165">
+        <List width="150">
+            <AutoVariable width="fill" target="auto-item.enable" label="Enable auto item"
+                          tooltip="Allows you to automatically rent and craft items, very useful for bots."/>
+            <AutoVariable width="fill" target="auto-item.time" label="Equip timer"
+                          tooltip="Time between auto item attempts in milliseconds."/>
+            <AutoVariable width="fill" target="auto-item.weapons" label="Weapons"
+                          tooltip="Enable automatically renting/crafting weapons."/>
+            <AutoVariable width="fill" target="auto-item.weapons.primary" label="Primary"
+                          tooltip="Primary weapon to rent/craft, see cathook.club/wiki/How-to-Autoitem for formatting information. -1 is stock."/>
+            <AutoVariable width="fill" target="auto-item.weapons.secondary" label="Secondary/Cloak"
+                          tooltip="Secondary/Cloak weapon to rent/craft, see cathook.club/wiki/How-to-Autoitem for formatting information. -1 is stock."/>
+            <AutoVariable width="fill" target="auto-item.weapons.melee" label="Melee"
+                          tooltip="Melee weapon to rent/craft, see cathook.club/wiki/How-to-Autoitem for formatting information. -1 is stock."/>
+            <AutoVariable width="fill" target="auto-item.hats" label="Hats"
+                          tooltip="Enable automatically equipping hats, if it's an achievement hat it will be automatically obtained, else you must have the item already."/>
+            <AutoVariable width="fill" target="auto-item.hats.1" label="Hat 1"
+                          tooltip="First hat/cosmetic to equip, see cathook.club/wiki/How-to-Autoitem"/>
+            <AutoVariable width="fill" target="auto-item.hats.2" label="Hat 2"
+                          tooltip="Second hat/cosmetic to equip, see cathook.club/wiki/How-to-Autoitem"/>
+            <AutoVariable width="fill" target="auto-item.hats.3" label="Hat 3"
+                          tooltip="Third hat/cosmetic to equip, see cathook.club/wiki/How-to-Autoitem"/>
+        </List>
+    </Box>
+    <Box padding="12 6 6 6" width="content" height="content" name="Autoload" x="330">
+        <List width="150">
+            <AutoVariable width="fill" target="cat-bot.autoload.enable" label="Enable autoload"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.chance" label="Load chance"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.deaths" label="Load deaths"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.load-same-config" label="Allow loading same config"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.conf1" label="Config glob 1"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.conf1.enable" label="Enable config glob 1"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.conf2" label="Config glob 2"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.conf2.enable" label="Enable config glob 2"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.conf3" label="Config glob 3"/>
+            <AutoVariable width="fill" target="cat-bot.autoload.conf3.enable" label="Enable config glob 3"/>
+        </List>
+    </Box>
+</Tab>

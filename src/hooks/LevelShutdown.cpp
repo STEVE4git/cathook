@@ -6,7 +6,6 @@
 #include <hacks/Aimbot.hpp>
 #include <hacks/hacklist.hpp>
 #include "HookedMethods.hpp"
-
 namespace hooked_methods
 {
 
@@ -16,7 +15,7 @@ DEFINE_HOOKED_METHOD(LevelShutdown, void, void *this_)
     playerlist::Save();
     g_Settings.bInvalid = true;
     chat_stack::Reset();
-    EC::run(EC::LevelShutdown);
+     EC::run(EC::LevelShutdown);
     // Free memory for hitbox cache
     entity_cache::Shutdown();
 #if ENABLE_IPC

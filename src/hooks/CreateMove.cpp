@@ -27,7 +27,6 @@ settings::Boolean engine_pred{ "misc.engine-prediction", "true" };
 static settings::Boolean debug_projectiles{ "debug.projectiles", "false" };
 static settings::Int fullauto{ "misc.full-auto", "0" };
 static settings::Boolean fuckmode{ "misc.fuckmode", "false" };
-
 class CMoveData;
 namespace engine_prediction
 {
@@ -137,14 +136,8 @@ DEFINE_HOOKED_METHOD(CreateMove, bool, void *this_, float input_sample_time, CUs
     bool time_replaced, ret, speedapplied;
     float curtime_old, servertime, speed, yaw;
     Vector vsilent, ang;
-
     current_user_cmd = cmd;
     EC::run(EC::CreateMoveEarly);
-    IF_GAME(IsTF2C())
-    {
-        if (CE_GOOD(LOCAL_W) && minigun_jump && LOCAL_W->m_iClassID() == CL_CLASS(CTFMinigun))
-            CE_INT(LOCAL_W, netvar.iWeaponState) = 0;
-    }
     ret = original::CreateMove(this_, input_sample_time, cmd);
 
     if (!cmd)
@@ -243,6 +236,8 @@ DEFINE_HOOKED_METHOD(CreateMove, bool, void *this_, float input_sample_time, CUs
         PROF_SECTION(CM_LocalPlayer);
         g_pLocalPlayer->Update();
     }
+   
+
     PrecalculateCanShoot();
     if (firstcm)
     {
@@ -251,6 +246,7 @@ DEFINE_HOOKED_METHOD(CreateMove, bool, void *this_, float input_sample_time, CUs
         {
             sendIdentifyMessage(false);
         }
+       
         EC::run(EC::FirstCM);
         firstcm = false;
     }
@@ -331,14 +327,16 @@ DEFINE_HOOKED_METHOD(CreateMove, bool, void *this_, float input_sample_time, CUs
             g_pLocalPlayer->UpdateEye();
         }
 
-        if (hacks::tf2::warp::in_warp)
+        if (hacks::tf2::warp::in_warp){
+           
             EC::run(EC::CreateMoveWarp);
-        else
+        }
+        else{
             EC::run(EC::CreateMove);
+        }
     }
     if (time_replaced)
         g_GlobalVars->curtime = curtime_old;
-    g_Settings.bInvalid = false;
     {
         PROF_SECTION(CM_chat_stack);
         chat_stack::OnCreateMove();
@@ -487,4 +485,9 @@ DEFINE_HOOKED_METHOD(CreateMoveInput, void, IInput *this_, int sequence_nr, floa
     // Write the usercmd
     WriteCmd(this_, current_late_user_cmd, sequence_nr);
 }
+
+
+
+
+
 } // namespace hooked_methods

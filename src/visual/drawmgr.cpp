@@ -23,12 +23,12 @@
 #include "hack.hpp"
 #include "menu/menu/Menu.hpp"
 #include "drawmgr.hpp"
-
 static settings::Boolean info_text{ "hack-info.enable", "true" };
 static settings::Boolean info_text_min{ "hack-info.minimal", "false" };
 
 void render_cheat_visuals()
 {
+    
     {
         PROF_SECTION(BeginCheatVisuals);
         BeginCheatVisuals();
@@ -41,6 +41,7 @@ void render_cheat_visuals()
         PROF_SECTION(EndCheatVisuals);
         EndCheatVisuals();
     }
+    
 }
 #if ENABLE_GLEZ_DRAWING
 glez::record::Record bufferA{};
@@ -81,7 +82,7 @@ void DrawCheatVisuals()
         {
             auto color = colors::RainbowCurrent();
             color.a    = 1.0f;
-            AddSideString("cathook by nullworks", color);
+            AddSideString("Wotan by STEVE4", color);
             if (!info_text_min)
             {
                 AddSideString(hack::GetVersion(),
@@ -104,11 +105,9 @@ void DrawCheatVisuals()
     }
     if (CE_GOOD(g_pLocalPlayer->entity) && !g_Settings.bInvalid)
     {
-        IF_GAME(IsTF2())
-        {
+       
             PROF_SECTION(DRAW_skinchanger);
             hacks::tf2::skinchanger::DrawText();
-        }
         Prediction_PaintTraverse();
     }
     {

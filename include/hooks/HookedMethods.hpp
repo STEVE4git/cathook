@@ -7,6 +7,7 @@
 #pragma once
 
 #include "common.hpp"
+#include <condition_variable>
 #if ENABLE_VISUALS
 union SDL_Event;
 struct SDL_Window;

@@ -45,9 +45,9 @@ void Unregister(enum ec_types type, const std::string &name)
         }
 }
 
-void run(ec_types type)
+void run(enum ec_types type)
 {
-    auto &vector = events[type];
+auto &vector = events[type];
     for (auto &i : vector)
     {
 #if ENABLE_PROFILER
@@ -55,6 +55,8 @@ void run(ec_types type)
 #endif
         i.function();
     }
+   
 }
+    
 
 } // namespace EC
