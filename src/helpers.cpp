@@ -1044,6 +1044,7 @@ bool IsEntityVectorVisible(CachedEntity *entity, Vector endpos, bool use_weapon_
     return (((IClientEntity *) trace->m_pEnt) == RAW_ENT(entity) || !trace->DidHit());
 }
 
+
 // Get all the corners of a box. Taken from sauce engine.
 void GenerateBoxVertices(const Vector &vOrigin, const QAngle &angles, const Vector &vMins, const Vector &vMaxs, Vector pVerts[8])
 {

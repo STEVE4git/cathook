@@ -95,12 +95,13 @@ float getLatency()
     float real_latency = 0.0f;
 
     // If we have a netchannel (just in case) set real latency to it
-    if (ch)
+    if (ch){
         real_latency = ch->GetLatency(FLOW_OUTGOING) * 1000.0f;
+    }
 
     // Clamp and apply rampup, also ensure we do not go out of the 1000.0f bounds
     float backtrack_latency = latency_rampup * std::clamp(*latency, 0.0f, 900.0f - real_latency);
-    
+  
     return backtrack_latency;
 }
 
@@ -195,7 +196,7 @@ void MoveToTick(BacktrackData data)
     // Mark all the hitboxes as valid so we don't recalc them and use the old data
     // We already have
     target->hitboxes.m_CacheInternal.resize(data.hitboxes.size());
-    for (int i = hitbox_t::head; i <= foot_R; i++)
+    for (int i = hitbox_t::head; i <= hitbox_t::spine_1; i++)
     {
         target->hitboxes.m_CacheValidationFlags[i] = true;
         target->hitboxes.m_CacheInternal.at(i)     = data.hitboxes.at(i);
@@ -306,7 +307,7 @@ void CreateMoveEarly()
         // Copy bones (for chams/glow)
         data.bones = ent->hitboxes.bones;
 
-        for (int i = head; i <= foot_R; i++)
+        for (int i = head; i <= spine_2; i++)
             data.hitboxes.at(i) = *ent->hitboxes.GetHitbox(i);
 
         ent_data.insert(ent_data.begin(), data);

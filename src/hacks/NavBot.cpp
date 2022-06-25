@@ -689,87 +689,29 @@ bool isStayNearTargetValid(CachedEntity *ent)
 bool stayNear()
 {
     PROF_SECTION(stayNear)
-    static Timer staynear_cooldown{};
-    static CachedEntity *previous_target = nullptr;
-
-    // Stay near is expensive so we have to cache. We achieve this by only checking a pre-determined amount of players every
-    // CreateMove
-    constexpr int MAX_STAYNEAR_CHECKS_RANGE = 3;
-    constexpr int MAX_STAYNEAR_CHECKS_CLOSE = 2;
-    static int lowest_check_index           = 0;
-
-    // Stay near is off
-    if (!stay_near)
-        return false;
-    // Don't constantly path, it's slow.
-    // Far range classes do not need to repath nearly as often as close range ones.
-    if (!staynear_cooldown.test_and_set(selected_config.prefer_far ? 2000 : 500))
-        return navparser::NavEngine::current_priority == staynear;
-
-    // Too high priority, so don't try
-    if (navparser::NavEngine::current_priority > staynear)
-        return false;
-
-    // Check and use our previous target if available
-    if (isStayNearTargetValid(previous_target))
-    {
-        auto ent_origin = previous_target->m_vecDormantOrigin();
-        if (ent_origin)
-        {
-            // Check if current target area is valid
-            if (navparser::NavEngine::isPathing())
-            {
-                auto crumbs = navparser::NavEngine::getCrumbs();
-                // We cannot just use the last crumb, as it is always nullptr
-                if (crumbs->size() > 1)
-                {
-                    auto last_crumb = (*crumbs)[crumbs->size() - 2];
-                    // Area is still valid, stay on it
-                    if (isAreaValidForStayNear(*ent_origin, last_crumb.navarea))
-                        return true;
-                }
+    int curr_players = g_IEngine->GetMaxClients();
+    CNavArea** malloc_arr = (CNavArea**)malloc(sizeof(CNavArea*)*50);
+    int malloc_arr_iterator = 0;
+    for(int i=1;i<curr_players;i++){
+        CachedEntity* curr_player = ENTITY(i);
+          if(CE_BAD(curr_player) || !curr_player->m_bAlivePlayer())
+          continue;   
+        Vector curr_vector = curr_player->m_vecOrigin();
+        CNavArea* heat_map = navparser::NavEngine::findClosestNavSquare(curr_vector);
+        malloc_arr[malloc_arr_iterator]=heat_map;
+    }
+    int highest_nav_square[2] = {};
+    for(int i=0; i<malloc_arr_iterator;i++){
+        CNavArea* temp_swamp = malloc_arr[i];
+        int highest_square = 0;
+        for(int i=0;i<malloc_arr_iterator;i++){
+            if(temp_swamp == malloc_arr[i]){
+                highest_square++;
             }
-            // Else Check our origin for validity (Only for ranged classes)
-            else if (selected_config.prefer_far && isAreaValidForStayNear(*ent_origin, navparser::NavEngine::findClosestNavSquare(LOCAL_E->m_vecOrigin())))
-                return true;
         }
-        // Else we try to path again
-        if (stayNearTarget(previous_target))
-            return true;
-        // Failed, invalidate previous target and try others
-        previous_target = nullptr;
+
     }
 
-    auto advance_count = selected_config.prefer_far ? MAX_STAYNEAR_CHECKS_RANGE : MAX_STAYNEAR_CHECKS_CLOSE;
-
-    // Ensure it is in bounds and also wrap around
-    if (lowest_check_index > g_IEngine->GetMaxClients())
-        lowest_check_index = 0;
-
-    int calls = 0;
-    // Test all entities
-    for (int i = lowest_check_index; i <= g_IEngine->GetMaxClients(); i++)
-    {
-        if (calls >= advance_count)
-            break;
-        calls++;
-        lowest_check_index++;
-        CachedEntity *ent = ENTITY(i);
-        if (!isStayNearTargetValid(ent))
-        {
-            calls--;
-            continue;
-        }
-        // Succeeded pathing
-        if (stayNearTarget(ent))
-        {
-            previous_target = ent;
-            return true;
-        }
-    }
-    // Stay near failed to find any good targets, add extra delay
-    staynear_cooldown.last += std::chrono::seconds(3);
-    return false;
 }
 
 // Try to attack people using melee if we are in a situation where this is viable

@@ -315,6 +315,7 @@ public:
 
         return ovBestSquare;
     }
+   
     std::vector<void *> findPath(CNavArea *local, CNavArea *dest)
     {
         using namespace std::chrono;
