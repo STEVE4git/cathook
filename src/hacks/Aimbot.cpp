@@ -688,7 +688,7 @@ CachedEntity *RetrieveBestTarget(bool aimkey_state)
             
 
             // Check if previous target is still good
-            else if (!shouldbacktrack_cache && IsTargetStateGood(target_last))
+            else if (!shouldbacktrack_cache && IsTargetStateGood(target_last) && small_box_checker(target_last) && Aim(target_last))
             {
                 // If it is then return it again
                 return target_last;
@@ -739,7 +739,6 @@ CachedEntity *RetrieveBestTarget(bool aimkey_state)
             }
         }
         else{
-            logging::Info("RAN ELSE STATEMENT");
             if(IsTargetStateGood(ent) && small_box_checker(ent) && Aim(ent))
                 isTargetGood=true;
         }
