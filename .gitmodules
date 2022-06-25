@@ -1,3 +1,5 @@
+[submodule "source-sdk"]
+	path = external/source-sdk-2013-headers
 [submodule "libglez"]
 	path = external/libglez
 	url = https://github.com/nullworks/libglez
