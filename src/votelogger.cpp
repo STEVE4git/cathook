@@ -79,6 +79,7 @@ void dispatchUserMessage(bf_read &buffer, int type)
         // TODO: Add always vote no/vote no on friends. Cvar is "vote option2"
         was_local_player = false;
         int team         = buffer.ReadByte();
+        int vote_id      = buffer.ReadLong();
         int caller       = buffer.ReadByte();
         char reason[64];
         char name[64];
@@ -113,14 +114,14 @@ void dispatchUserMessage(bf_read &buffer, int type)
 
             if (*vote_kickn && friendly_kicked)
             {
-                vote_command = { "vote option2", 1000u + (rand() % 5000) };
+                vote_command = { strfmt("vote %d option2", vote_id).get(), 1000u + (rand() % 5000) };
                 vote_command.timer.update();
                 if (*vote_rage_vote && !friendly_caller)
                     pl_caller.state = k_EState::RAGE;
             }
             else if (*vote_kicky && !friendly_kicked)
             {
-                vote_command = { "vote option1", 1000u + (rand() % 5000) };
+                vote_command = { strfmt("vote %d option1", vote_id).get(), 1000u + (rand() % 5000) };
                 vote_command.timer.update();
             }
         }

@@ -82,8 +82,6 @@ static settings::Boolean ipc_mode{ "autoparty.ipc-mode", "false" };
 static settings::Int ipc_count{ "autoparty.ipc-count", "0" };
 // How often to run the autoparty routine, in seconds
 static settings::Int timeout{ "autoparty.run-frequency", "60" };
-// Should we have bots bypass kicks?
-static settings::Boolean kickbypass{ "autoparty.kick-bypass", "false" };
 // Only run the autoparty routine once every N seconds
 static Timer routine_timer{};
 // Populated by the routine when empty and by configuration changes
@@ -100,7 +98,6 @@ static std::vector<uint32> party_hosts = {};
  *
  *
  */
-static settings::Boolean no_autojoin("misc.remove_invite_timer", "false");
 
 // ha ha macros go brr
 #define log(...)        \
@@ -240,10 +237,6 @@ void party_routine()
     re::CTFPartyClient *client = re::CTFPartyClient::GTFPartyClient();
     if (client)
     {
-        // Toggle anti-kick as needed
-        if (kickbypass)
-            no_autojoin = !is_host();
-
         int members = client->GetNumMembers();
         // Are we in a party?
         if (members == 1)
@@ -364,109 +357,12 @@ void party_routine()
     }
 }
 
-#define IP_STARTSTR "PB_IP"
-
-// Received party message
-void partyChatMessage(IGameEvent *event)
-{
-    if (!event->GetString("text"))
-        return;
-
-    // Only parse actual chat messages
-    if (event->GetInt("type") != 1)
-        return;
-
-    re::CTFPartyClient *client = re::CTFPartyClient::GTFPartyClient();
-
-    if (!client)
-        return;
-    // And are we actually the leader?
-    // Get a list of party members, then check each one to determine the leader
-    uint32 leader_id = 0;
-    CSteamID id;
-    client->GetCurrentPartyLeader(id);
-    leader_id = id.GetAccountID();
-
-    // Party leader doesn't care, they just join
-    if (leader_id == g_ISteamUser->GetSteamID().GetAccountID() || client->GetNumMembers() == 1)
-        return;
-
-    std::string chat_message = event->GetString("text");
-    // Found Message about server IP
-    if (chat_message.find(IP_STARTSTR) == 0)
-    {
-        auto ip_string = "connect " + chat_message.substr(sizeof(IP_STARTSTR) - 1);
-        g_IEngine->ClientCmd_Unrestricted(ip_string.c_str());
-    }
-}
-
-class PartyEventListener : public IGameEventListener2
-{
-    virtual void FireGameEvent(IGameEvent *event)
-    {
-        if (enabled && kickbypass)
-            partyChatMessage(event);
-    }
-};
-
-static PartyEventListener party_listener;
-
-void joinMatch()
-{
-    if (!enabled || !kickbypass)
-        return;
-
-    re::CTFPartyClient *client = re::CTFPartyClient::GTFPartyClient();
-
-    if (!client)
-        return;
-
-    CSteamID id;
-    client->GetCurrentPartyLeader(id);
-    if (id.GetAccountID() != g_ISteamUser->GetSteamID().GetAccountID())
-        return;
-
-    INetChannel *ch          = (INetChannel *) g_IEngine->GetNetChannelInfo();
-    std::string party_string = IP_STARTSTR;
-    party_string.append(ch->GetAddress());
-
-    client->SendPartyChat(party_string.c_str());
-}
-
 static InitRoutine init(
     []()
     {
-        static BytePatch removeInviteTime(gSignatures.GetClientSignature, "55 89 e5 57 56 53 83 ec ? 8b ? ? 89 1c ? e8 ? ? ? ? f7 ? ? ? ? ? fd", 0x00, { 0xC3 });
-        if (*no_autojoin)
-            removeInviteTime.Patch();
-        no_autojoin.installChangeCallback(
-            [](settings::VariableBase<bool> &, bool new_val)
-            {
-                if (new_val)
-                    removeInviteTime.Patch();
-                else
-                    removeInviteTime.Shutdown();
-            });
-
         host_list.installChangeCallback([](settings::VariableBase<std::string> &var, std::string after) { repopulate(after); });
         ipc_mode.installChangeCallback([](settings::VariableBase<bool> &var, bool after) { party_hosts.clear(); });
-        kickbypass.installChangeCallback(
-            [](settings::VariableBase<bool> &var, bool after)
-            {
-                if (*var && !after)
-                    no_autojoin = false;
-            });
         EC::Register(EC::Paint, party_routine, "paint_autoparty", EC::average);
 
-        g_IEventManager2->AddListener(&party_listener, "party_chat", false);
-
-        EC::Register(
-            EC::Shutdown,
-            []()
-            {
-                removeInviteTime.Shutdown();
-                g_IEventManager2->RemoveListener(&party_listener);
-            },
-            "shutdown_autoparty");
     });
 } // namespace hacks::tf2::autoparty

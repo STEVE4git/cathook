@@ -290,7 +290,7 @@ static InitRoutineEarly nullify_textmode([]() {
     auto setup_graphic_addr = e8call_direct(gSignatures.GetEngineSignature("E8 ? ? ? ? 8B 93 ? ? ? ? 85 D2 0F 84")) + 0x18;
     static BytePatch patch5(setup_graphic_addr, { 0x81, 0xC4, 0x6C, 0x20, 0x00, 0x00, 0x5B, 0x5E, 0x5F, 0x5D, 0xC3 });
     // CMaterialSystem::SwapBuffers
-    static BytePatch patch6(sharedobj::materialsystem().Pointer(0x3ECB0), { 0x31, 0xC0, 0x40, 0xC3 });
+    static BytePatch patch6(sharedobj::materialsystem().Pointer(0x3ed90), { 0x31, 0xC0, 0x40, 0xC3 });
     // V_RenderView
     static BytePatch patch7(gSignatures.GetEngineSignature, "55 89 E5 56 53 83 C4 80 C7 45 ? 00 00 00 00 A1 ? ? ? ? C7 45 ? 00 00 00 00 85 C0", 0x1d3, { 0x90, 0x90, 0x90, 0x90, 0x90 });
 

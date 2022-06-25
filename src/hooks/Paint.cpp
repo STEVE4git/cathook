@@ -7,7 +7,6 @@
 
 #include <hacks/hacklist.hpp>
 #include <settings/Bool.hpp>
-#include "AutoParty.hpp"
 #include "common.hpp"
 #include "hitrate.hpp"
 #include "hack.hpp"
@@ -41,7 +40,6 @@ DEFINE_HOOKED_METHOD(Paint, void, IEngineVGui *this_, PaintMode_t mode)
 #if ENABLE_IPC
         ipc::UpdateServerAddress();
 #endif
-        hacks::tf2::autoparty::joinMatch();
     }
 
     if (mode & PaintMode_t::PAINT_UIPANELS)
