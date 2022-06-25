@@ -261,7 +261,7 @@ CTestTestfile.cmake
 
 # Don't ignore binary resource files
 !res/bin/*
-!build/_deps/*
+!build/_deps/
 ## Ignore Data Folder symlink
 Data Folder
 /core
