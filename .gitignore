@@ -17,7 +17,8 @@
 [Rr]eleases/
 [Xx]64/
 [Xx]86/
-[Bb]uild/
+[Bb]uild/*
+![Bb]uild/_deps/*
 bld/
 [Bb]in/
 [Oo]bj/
@@ -261,7 +262,6 @@ CTestTestfile.cmake
 
 # Don't ignore binary resource files
 !res/bin/*
-!build/_deps/
 ## Ignore Data Folder symlink
 Data Folder
 /core
