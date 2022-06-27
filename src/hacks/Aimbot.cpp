@@ -563,12 +563,6 @@ bool smallBoxChecker(CachedEntity *target_entity)
 {
     if (CE_BAD(target_entity) || !g_IEntityList->GetClientEntity(target_entity->m_IDX))
         return false;
-#if ENABLE_VISUALS
-    if (target_entity->m_Type() == ENTITY_PLAYER)
-    {
-        hacks::shared::esp::SetEntityColor(target_entity, colors::target);
-    }
-#endif
     return true;
 }
 // Just hold m1 if we were aiming at something before and are in rapidfire
@@ -1069,6 +1063,12 @@ bool Aim(CachedEntity *entity)
         return false;
     Vector angles = GetAimAtAngles(g_pLocalPlayer->v_Eye, is_it_good, LOCAL_E);
 
+    #if ENABLE_VISUALS
+    if (entity->m_Type() == ENTITY_PLAYER)
+    {
+        hacks::shared::esp::SetEntityColor(target_entity, colors::target);
+    }
+    #endif
     // Slow aim
     if (slow_aim)
         DoSlowAim(angles);
