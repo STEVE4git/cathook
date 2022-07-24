@@ -241,6 +241,8 @@ void Draw()
     std::vector<CachedEntity *> sentries;
     for (auto &ent : entity_cache::valid_ents)
     {
+        if (CE_INVALID(ent))
+            continue;
         if (ent->m_iTeam() == 0)
             continue;
         if (!ent->m_bAlivePlayer())
