@@ -20,6 +20,7 @@
 #include <core/netvars.hpp>
 #include "playerresource.h"
 #include "globals.h"
+#include <map>
 #include "classinfo/classinfo.hpp"
 #include "client_class.h"
 #include "Constants.hpp"
