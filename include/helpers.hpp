@@ -230,6 +230,27 @@ template <typename... Args> std::string format(const Args &...args)
 extern const std::string classes[10];
 extern const char *powerups[POWERUP_COUNT];
 bool isTruce();
-bool GetPlayerInfo(int idx, player_info_s *info);
+
 void setTruce(bool status);
 int GetPlayerForUserID(int userID);
+
+inline bool GetPlayerInfo(int idx, player_info_s *info)
+{
+    bool res = g_IEngine->GetPlayerInfo(idx, info);
+    if (!res)
+        return res;
+
+    // First try parsing GUID, should always work unless a server is being malicious
+    try
+    {
+        std::string guid = info->guid;
+        guid             = guid.substr(5, guid.length() - 6);
+        info->friendsID  = std::stoul(guid.c_str());
+    }
+    catch (...)
+    {
+        // Fix friends ID with player resource
+        info->friendsID = g_pPlayerResource->GetAccountID(idx);
+    }
+    return res;
+}
