@@ -38,7 +38,9 @@ inline CachedEntity::CachedEntity(u_int16_t idx) : m_IDX(idx), hitboxes(hitbox_c
 #endif
     m_fLastUpdate = 0.0f;
 }
-CachedEntity::~CachedEntity(){}
+CachedEntity::~CachedEntity()
+{
+}
 static settings::Float ve_window{ "debug.ve.window", "0" };
 static settings::Boolean ve_smooth{ "debug.ve.smooth", "true" };
 static settings::Int ve_averager_size{ "debug.ve.averaging", "0" };
@@ -134,8 +136,7 @@ void Update()
         {
             if (g_Settings.bInvalid || !(g_IEntityList->GetClientEntity(i)) || !(g_IEntityList->GetClientEntity(i)->GetClientClass()->m_ClassID))
                 continue;
-            if (!array.contains(i))
-                array.emplace(i, CachedEntity(i));
+            array.try_emplace(i, CachedEntity{ i });
             array[i].Update();
 
             if (CE_GOOD((&array[i])))
