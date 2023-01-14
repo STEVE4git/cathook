@@ -79,7 +79,7 @@ static settings::Boolean entity_id{ "esp.debug.id", "true" };
 
 // Forward declarations
 void ResetEntityStrings(bool full_clear);
-inline void AddEntityString(CachedEntity *entity, const std::string &string, const rgba_t &color = colors::empty);
+
 // Entity Processing
 void __attribute__((fastcall)) ProcessEntity(CachedEntity *ent);
 void __attribute__((fastcall)) ProcessEntityPT(CachedEntity *ent);
@@ -129,7 +129,7 @@ boost::unordered_flat_map<CachedEntity *, ESPData> data;
 // that insted of having all this extra code. Shouldnt gethitbox use cached
 // hitboxes, if so it should be nicer on performance
 // Use to add a esp string to an entity
-inline void AddEntityString(CachedEntity *entity, const std::string &string, const rgba_t &color)
+inline void AddEntityString(CachedEntity *entity, const std::string &string, const rgba_t &color = colors::empty)
 {
     ESPData &entity_data = data[entity];
     if (entity_data.string_count >= 15)

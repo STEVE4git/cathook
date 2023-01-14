@@ -179,8 +179,15 @@ void FastStop();
 void AimAtHitbox(CachedEntity *ent, int hitbox, CUserCmd *cmd, bool compensate_punch = true);
 bool IsProjectileCrit(CachedEntity *ent);
 
-QAngle VectorToQAngle(Vector in);
-Vector QAngleToVector(QAngle in);
+inline QAngle VectorToQAngle(Vector in)
+{
+    return *(QAngle *) &in;
+}
+
+inline Vector QAngleToVector(QAngle in)
+{
+    return *(Vector *) &in;
+}
 
 bool CanHeadshot();
 bool CanShoot();

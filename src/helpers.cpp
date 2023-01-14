@@ -1704,15 +1704,7 @@ float ATTRIB_HOOK_FLOAT(float base_value, const char *search_string, IClientEnti
     return AttribHookFloat_fn(base_value, search_string, ent, buffer, is_global_const_string);
 }
 
-QAngle VectorToQAngle(Vector in)
-{
-    return *(QAngle *) &in;
-}
 
-Vector QAngleToVector(QAngle in)
-{
-    return *(Vector *) &in;
-}
 
 void AimAt(Vector origin, Vector target, CUserCmd *cmd, bool compensate_punch)
 {
