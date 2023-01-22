@@ -113,7 +113,7 @@ void Update()
     valid_ents.clear(); // Reserving isn't necessary as this doesn't reallocate it
     player_cache.clear();
     if (max >= MAX_ENTITIES)
-        max = MAX_ENTITIES - 1;
+        max = MAX_ENTITIES - 1;  
     if (previous_max == max && previous_ent == current_ents)
     {
         for (auto &[key, val] : array)
