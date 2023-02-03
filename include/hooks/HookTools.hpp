@@ -43,7 +43,7 @@ enum ec_priority
 };
 
 typedef void (*EventFunction)();
-void Register(enum ec_types type, const EventFunction &function, const std::string &name, enum ec_priority priority = average);
+constexpr void Register(enum ec_types type, const EventFunction &function, const std::string_view &name, enum ec_priority priority = average);
 void Unregister(enum ec_types type, const std::string &name);
 void run(enum ec_types type);
 } // namespace EC

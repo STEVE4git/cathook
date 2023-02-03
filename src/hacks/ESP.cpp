@@ -1419,6 +1419,8 @@ void _FASTCALL ProcessEntity(CachedEntity *ent)
                         write_str = smallhealth_str;
                         color     = colors::green;
                         break;
+                    default:
+                        break;
                     }
                     // TF2C Adrenaline esp
                 }
@@ -1476,6 +1478,8 @@ void _FASTCALL ProcessEntity(CachedEntity *ent)
                     write_str = crumpkin_str;
                     color     = colors::FromRGBA8(253, 203, 88, 255);
                 }
+                else
+                    break;
                 AddEntityString(ent, write_str, color);
             }
         }
