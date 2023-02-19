@@ -19,7 +19,6 @@
 #include "FollowBot.hpp"
 #include "Warp.hpp"
 #include "AntiCheatBypass.hpp"
-
 namespace hacks::shared::aimbot
 {
 static settings::Boolean normal_enable{ "aimbot.enable", "false" };
@@ -1169,6 +1168,8 @@ bool IsTargetStateGood(CachedEntity *entity)
 }
 
 // A function to aim at a specific entitiy
+// __attribute__ has to be ontop of the function, since we ned to check for nans
+__attribute__((optimize("-fno-finite-math-only"))) 
 bool Aim(CachedEntity *entity)
 {
     if (*miss_chance > 0 && UniformRandomInt(0, 99) < *miss_chance)
@@ -1188,44 +1189,45 @@ bool Aim(CachedEntity *entity)
         const bool grav_comp = (0.01f < cur_proj_grav);
         if (grav_comp)
         {
-            Vector direction_vec;
-            const QAngle &ang = VectorToQAngle(angles);
-            AngleVectors2(ang, &direction_vec);
-
-            direction_vec *= cur_proj_speed;
-            float grav  = cur_proj_grav * g_ICvar->FindVar("sv_gravity")->GetFloat() * -1.0f;
-            float diff  = (entity->m_vecOrigin().z - orig.z);
-            float z_vel = direction_vec.z;
-            // Direct shots should just use normal vischeck
-            if (30.0f < abs(z_vel))
+            const QAngle &angl = VectorToQAngle(angles);
+            Vector end_targ;
+            if (entity->hitboxes.GetHitbox(cd.hitbox))
+                end_targ = entity->hitboxes.GetHitbox(cd.hitbox)->center;
+            else
+                end_targ = entity->m_vecOrigin();
+            Vector fwd;
+            AngleVectors2(angl, &fwd);
+            fwd.NormalizeInPlace();
+            fwd *= cur_proj_speed;
+            Vector dist_between = (end_targ - orig) / fwd;
+            const float gravity = cur_proj_grav * g_ICvar->FindVar("sv_gravity")->GetFloat() * -1.0f;
+            float z_diff        = (end_targ.z - orig.z);
+            const float sol_1   = ((fwd.z + std::sqrt(fwd.z * fwd.z + 2.0f * gravity * (z_diff))) / (-1.0f * gravity));
+            if (std::isnan(sol_1))
+                dist_between.z = ((fwd.z - std::sqrt(fwd.z * fwd.z + 2.0f * gravity * (z_diff))) / (-1.0f * gravity));
+            else
+                dist_between.z = sol_1;
+            float maxTime = dist_between.Length();
+            if (!std::isnan(maxTime))
             {
-                float time = -1.0f * ((z_vel + fsqrt(z_vel * z_vel + 2.0f * diff * grav)) / grav);
-                if (!time)
-                    time = -1.0f * ((z_vel * fsqrt(z_vel * z_vel + 2 * (LOCAL_E->hitboxes.GetHitbox(14)->center.z - orig.z) * grav)) / grav);
-                direction_vec *= time;
-                direction_vec.z = z_vel * time + 0.5f * grav * time * time;
-                if (direction_vec.Length() * 1.2f < (orig.DistTo(entity->m_vecOrigin())))
-                    return false;
-                AngleVectors2(ang, &direction_vec);
-                direction_vec *= cur_proj_speed;
-                // Don't check the middle of the arc if they're close to us.
-                if (1.0f < time)
+
+                const float timeStep = maxTime * 0.1f;
+                Vector curr_pos      = orig;
+                trace_t ptr_trace;
+                Vector last_pos                 = orig;
+                const IClientEntity *rawest_ent = RAW_ENT(entity);
+                for (float t = 0.0f; t < maxTime; t += timeStep, last_pos = curr_pos)
                 {
-                    float pitch      = ang.x * -1.0f;
-                    float max_height = -1.0f * direction_vec.z * direction_vec.z * (sin(pitch) * sin(pitch)) / (2.0f * grav);
-                    float time_2     = -1.0f * ((direction_vec.z + fsqrt(direction_vec.z * direction_vec.z + 2.0f * max_height * grav)) / grav);
-                    if (!time_2)
-                        return false;
-                    Vector res = direction_vec * time_2 + orig;
-                    res.z      = z_vel * time_2 + 0.5f * grav * time_2 * time_2;
-                    res.z += orig.z;
-                    // Checking the end of the arc doesn't matter for close range
-                    if (!didProjectileHit(res, is_it_good, entity, projectileHitboxSize(LOCAL_W->m_iClassID()), true))
-                        return false;
-                    if (!didProjectileHit(orig, res, entity, projectileHitboxSize(LOCAL_W->m_iClassID()), true))
-                        return false;
+                    curr_pos.x = orig.x + fwd.x * t;
+                    curr_pos.y = orig.y + fwd.y * t;
+                    curr_pos.z = orig.z + fwd.z * t + 0.5f * gravity * t * t;
+                    if (!didProjectileHit(last_pos, curr_pos, entity, projectileHitboxSize(LOCAL_W->m_iClassID()), true, &ptr_trace) || (IClientEntity *) ptr_trace.m_pEnt == rawest_ent)
+                        break;
                 }
-                else if (!didProjectileHit(orig, is_it_good, entity, projectileHitboxSize(LOCAL_W->m_iClassID()), true))
+                if (!didProjectileHit(ptr_trace.endpos, end_targ, entity, projectileHitboxSize(LOCAL_W->m_iClassID()), true, &ptr_trace))
+                    return false;
+
+                if (200.0f < curr_pos.DistTo(end_targ))
                     return false;
             }
             else if (!didProjectileHit(orig, is_it_good, entity, projectileHitboxSize(LOCAL_W->m_iClassID()), true))
@@ -1689,15 +1691,13 @@ static void DrawText()
         return;
     for (auto const &ent : entity_cache::player_cache)
     {
-        if (CE_GOOD(ent))
+
+        Vector screen;
+        Vector oscreen;
+        if (draw::WorldToScreen(cd.aim_position, screen) && draw::WorldToScreen(ent->m_vecOrigin(), oscreen))
         {
-            Vector screen;
-            Vector oscreen;
-            if (draw::WorldToScreen(cd.aim_position, screen) && draw::WorldToScreen(ent->m_vecOrigin(), oscreen))
-            {
-                draw::Rectangle(screen.x - 2, screen.y - 2, 4, 4, colors::white);
-                draw::Line(oscreen.x, oscreen.y, screen.x - oscreen.x, screen.y - oscreen.y, colors::EntityF(ent), 0.5f);
-            }
+            draw::Rectangle(screen.x - 2, screen.y - 2, 4, 4, colors::white);
+            draw::Line(oscreen.x, oscreen.y, screen.x - oscreen.x, screen.y - oscreen.y, colors::EntityF(ent), 0.5f);
         }
     }
 }

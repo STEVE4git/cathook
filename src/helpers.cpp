@@ -651,15 +651,19 @@ powerup_type GetPowerupOnPlayer(CachedEntity *player)
         return powerup_type::supernova;
     return powerup_type::not_powerup;
 }
-bool didProjectileHit(Vector start_point, Vector end_point, CachedEntity *entity, float projectile_size, bool grav_comp)
+bool didProjectileHit(Vector start_point, Vector end_point, CachedEntity *entity, float projectile_size, bool grav_comp, trace_t *tracer)
 {
 
     trace::filter_default.SetSelf(RAW_ENT(g_pLocalPlayer->entity));
     Ray_t ray;
-    trace_t trace_obj;
+    trace_t *trace_obj;
+    if (tracer)
+        trace_obj = tracer;
+    else
+        trace_obj = new trace_t;
     ray.Init(start_point, end_point, Vector(0, -projectile_size, -projectile_size), Vector(0, projectile_size, projectile_size));
-    g_ITrace->TraceRay(ray, MASK_SHOT_HULL, &trace::filter_default, &trace_obj);
-    return (((IClientEntity *) trace_obj.m_pEnt) == RAW_ENT(entity) || (grav_comp ? !trace_obj.DidHit(): false));
+    g_ITrace->TraceRay(ray, MASK_SHOT_HULL, &trace::filter_default, trace_obj);
+    return (((IClientEntity *) trace_obj->m_pEnt) == RAW_ENT(entity) || (grav_comp ? !trace_obj->DidHit() : false));
 }
 
 // A function to find a weapon by WeaponID
@@ -712,9 +716,9 @@ CachedEntity *getClosestEntity(Vector vec)
 {
     float distance         = FLT_MAX;
     CachedEntity *best_ent = nullptr;
-    for (auto const &ent: entity_cache::player_cache)
+    for (auto const &ent : entity_cache::player_cache)
     {
-        
+
         if (CE_VALID(ent) && ent->m_vecDormantOrigin() && ent->m_bAlivePlayer() && ent->m_bEnemy() && vec.DistTo(ent->m_vecOrigin()) < distance)
         {
             distance = vec.DistTo(*ent->m_vecDormantOrigin());
@@ -728,9 +732,9 @@ CachedEntity *getClosestNonlocalEntity(Vector vec)
 {
     float distance         = FLT_MAX;
     CachedEntity *best_ent = nullptr;
-    for (auto const &ent: entity_cache::player_cache)
+    for (auto const &ent : entity_cache::player_cache)
     {
-        
+
         if (CE_VALID(ent) && ent->m_IDX != g_pLocalPlayer->entity_idx && ent->m_vecDormantOrigin() && ent->m_bAlivePlayer() && ent->m_bEnemy() && vec.DistTo(ent->m_vecOrigin()) < distance)
         {
             distance = vec.DistTo(*ent->m_vecDormantOrigin());
@@ -879,7 +883,6 @@ bool isRapidFire(IClientEntity *wep)
     // Minigun changes mode once revved, so fix that
     return ret || wep->GetClientClass()->m_ClassID == CL_CLASS(CTFMinigun);
 }
-
 
 char GetUpperChar(ButtonCode_t button)
 {
@@ -1034,7 +1037,7 @@ bool IsEntityVectorVisible(CachedEntity *entity, Vector endpos, bool use_weapon_
             g_ITrace->TraceRay(ray, mask, &trace::filter_default, trace);
     }
 
-    return (((IClientEntity *) trace->m_pEnt) == RAW_ENT(entity) || (hit ? false: !trace->DidHit()) );
+    return (((IClientEntity *) trace->m_pEnt) == RAW_ENT(entity) || (hit ? false : !trace->DidHit()));
 }
 
 // Get all the corners of a box. Taken from sauce engine.
@@ -1181,7 +1184,7 @@ float ProjGravMult(int class_id, float x_speed)
             return 0.1f;
         else
             return 0.5f;
-    
+
     case CL_CLASS(CTFProjectile_Flare):
         return 0.25f;
     case CL_CLASS(CTFProjectile_HealingBolt):
@@ -1194,8 +1197,7 @@ float ProjGravMult(int class_id, float x_speed)
     case CL_CLASS(CTFProjectile_BallOfFire):
         return 0.0f;
     default:
-    return 0.3f;
-
+        return 0.3f;
     }
 }
 weaponmode GetWeaponMode(CachedEntity *ent)
@@ -1692,8 +1694,6 @@ float ATTRIB_HOOK_FLOAT(float base_value, const char *search_string, IClientEnti
     return AttribHookFloat_fn(base_value, search_string, ent, buffer, is_global_const_string);
 }
 
-
-
 void AimAt(Vector origin, Vector target, CUserCmd *cmd, bool compensate_punch)
 {
     cmd->viewangles = GetAimAtAngles(origin, target, compensate_punch ? LOCAL_E : nullptr);
@@ -1807,7 +1807,7 @@ CatCommand print_classnames("debug_print_classnames", "Lists classnames currentl
                             []()
                             {
                                 // Create a tmp ent for the loop
-                               
+
                                 // Go through all the entities
                                 for (auto const &ent : entity_cache::valid_ents)
                                 {
@@ -1976,10 +1976,9 @@ int SharedRandomInt(unsigned iseed, const char *sharedname, int iMinVal, int iMa
     return g_pUniformStream->RandomInt(iMinVal, iMaxVal);
 }
 
-
 int GetPlayerForUserID(int userID)
 {
-    for (auto const &ent: entity_cache::player_cache)
+    for (auto const &ent : entity_cache::player_cache)
     {
         player_info_s player_info;
         int i = ent->m_IDX;
