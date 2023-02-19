@@ -1689,15 +1689,13 @@ static void DrawText()
         return;
     for (auto const &ent : entity_cache::player_cache)
     {
-        if (CE_GOOD(ent))
+
+        Vector screen;
+        Vector oscreen;
+        if (draw::WorldToScreen(cd.aim_position, screen) && draw::WorldToScreen(ent->m_vecOrigin(), oscreen))
         {
-            Vector screen;
-            Vector oscreen;
-            if (draw::WorldToScreen(cd.aim_position, screen) && draw::WorldToScreen(ent->m_vecOrigin(), oscreen))
-            {
-                draw::Rectangle(screen.x - 2, screen.y - 2, 4, 4, colors::white);
-                draw::Line(oscreen.x, oscreen.y, screen.x - oscreen.x, screen.y - oscreen.y, colors::EntityF(ent), 0.5f);
-            }
+            draw::Rectangle(screen.x - 2, screen.y - 2, 4, 4, colors::white);
+            draw::Line(oscreen.x, oscreen.y, screen.x - oscreen.x, screen.y - oscreen.y, colors::EntityF(ent), 0.5f);
         }
     }
 }
