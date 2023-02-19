@@ -95,7 +95,7 @@ std::optional<colors::rgba_t> forceEspColorSteamId(unsigned id)
 }
 std::optional<colors::rgba_t> forceEspColor(CachedEntity *entity)
 {
-    if (entity->m_Type() == ENTITY_PLAYER)
+    if (entity->m_Type() == ENTITY_PLAYER && entity->player_info)
     {
         return forceEspColorSteamId(entity->player_info->friendsID);
     }

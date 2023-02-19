@@ -33,11 +33,8 @@ inline CachedEntity::CachedEntity(u_int16_t idx) : m_IDX(idx), hitboxes(hitbox_c
 }
 inline CachedEntity::~CachedEntity()
 {
-    if (player_info)
-    {
-        delete player_info;
-        player_info = 0;
-    }
+    delete player_info;
+    player_info = 0;
 }
 static settings::Float ve_window{ "debug.ve.window", "0" };
 static settings::Boolean ve_smooth{ "debug.ve.smooth", "true" };

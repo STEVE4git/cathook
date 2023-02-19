@@ -212,7 +212,7 @@ public:
     Vector m_vecVelocity{ 0 };
     Vector m_vecAcceleration{ 0 };
     hitbox_cache::EntityHitboxCache hitboxes;
-    player_info_s *player_info;
+    player_info_s *player_info = nullptr;
     void Reset()
     {
         m_bAnyHitboxVisible = false;
